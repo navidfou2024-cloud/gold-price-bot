@@ -13,38 +13,32 @@ TEHRAN = ZoneInfo("Asia/Tehran")
 API_BASE = "https://api.priceto.day/v1/latest/irr"
 
 
-def get_price(symbol: str):
-    url = f"{API_BASE}/{symbol}"
-
+def get_price(symbol):
     try:
         response = requests.get(
-            url,
+            f"{API_BASE}/{symbol}",
             timeout=15,
-            headers={"Accept": "application/json",
-                     "User-Agent": "GoldPriceBot/1.0"}
+            headers={
+                "Accept": "application/json",
+                "User-Agent": "GoldPriceBot/1.0"
+            }
         )
 
         if response.status_code != 200:
             print(f"API error for {symbol}: HTTP {response.status_code}")
-            print(response.text[:300])
             return None
 
         try:
             data = response.json()
         except ValueError:
-            print(f"Invalid JSON for {symbol}.")
-            print("Content-Type:", response.headers.get("Content-Type"))
-            print("Response:", repr(response.text[:300]))
+            print(f"Invalid JSON for {symbol}: {response.text[:200]}")
             return None
 
         if not data.get("success") or data.get("price") is None:
-            print(f"Price unavailable for {symbol}: {data}")
+            print(f"Price unavailable for {symbol}")
             return None
 
         price = float(data["price"])
-
-        # API values are assumed to be in IRR.
-        # Convert rial to toman.
         return f"{price / 10:,.0f}"
 
     except requests.RequestException as error:
