@@ -1,0 +1,32 @@
+name: Send Gold Prices
+
+on:
+  schedule:
+    # هر ساعت از ۹ تا ۱۷ به وقت تهران (UTC+3:30)
+    # ۹ تهران = ۵:۳۰ UTC
+    # ۱۷ تهران = ۱۳:۳۰ UTC
+    - cron: '30 5-13 * * *'   # هر ساعت از ۵:۳۰ تا ۱۳:۳۰ UTC
+
+  workflow_dispatch:  # برای تست دستی
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install python-telegram-bot requests
+
+      - name: Run bot
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
+        run: python bot.py
