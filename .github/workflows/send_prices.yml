@@ -1,11 +1,10 @@
-
 name: Send Gold Prices
 
 on:
   schedule:
-    # 09:00, 12:00, 15:00, 18:00 Tehran time
-    # Tehran is UTC+3:30
-    - cron: '30 5,8,11,14 * * *'
+    # Run every day at 09:00, 12:00, 15:00, and 18:00 Tehran time
+    - cron: '0 9,12,15,18 * * *'
+      timezone: 'Asia/Tehran'
 
   workflow_dispatch:
 
