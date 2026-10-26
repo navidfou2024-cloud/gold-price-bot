@@ -3,8 +3,8 @@ import requests
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-BALE_BOT_TOKEN = os.environ["BALE_BOT_TOKEN"]
-BALE_CHAT_ID = os.environ["BALE_CHAT_ID"]
+BALE_BOT_TOKEN = os.environ["BALE_BOT_TOKEN"].strip()
+BALE_CHAT_ID = os.environ["BALE_CHAT_ID"].strip()
 
 BALE_API_BASE = f"https://tapi.bale.ai/bot{BALE_BOT_TOKEN}"
 PRICE_API_BASE = "https://api.priceto.day/v1/latest/irr"
