@@ -1,7 +1,7 @@
 import os
 import requests
 
-token = os.environ["BALE_BOT_TOKEN"]
+token = os.environ["BALE_BOT_TOKEN"].strip()
 url = f"https://tapi.bale.ai/bot{token}/getUpdates"
 
 response = requests.get(url, timeout=25)
