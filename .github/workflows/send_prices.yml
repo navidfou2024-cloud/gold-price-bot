@@ -2,9 +2,9 @@ name: Send Gold Prices
 
 on:
   schedule:
-    # Run every day at 09:00, 12:00, 15:00, and 18:00 Tehran time
-    - cron: '0 9,12,15,18 * * *'
-      timezone: 'Asia/Tehran'
+    # 09:00, 12:00, 15:00, and 18:00 Tehran time (UTC+3:30)
+    # Use UTC explicitly and avoid the top of the hour, when GitHub schedules may be delayed.
+    - cron: '30 5,8,11,14 * * *'
 
   workflow_dispatch:
 
