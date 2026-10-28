@@ -1,11 +1,6 @@
-name: Send Gold Prices
+name: Send Gold Prices (Manual Fallback)
 
 on:
-  schedule:
-    # 09:00, 12:00, 15:00, and 18:00 Tehran time (UTC+3:30)
-    # Use UTC explicitly and avoid the top of the hour, when GitHub schedules may be delayed.
-    - cron: '30 5,8,11,14 * * *'
-
   workflow_dispatch:
 
 jobs:
