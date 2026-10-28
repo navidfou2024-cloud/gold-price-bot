@@ -1,29 +1,20 @@
-name: Send Gold Prices to Bale
+name: Send Gold Prices to Bale (Manual Fallback)
 
 on:
-  schedule:
-    # 09:00, 12:00, 15:00, and 18:00 Tehran time (UTC+3:30)
-    # Use UTC explicitly and avoid the top of the hour, when GitHub schedules may be delayed.
-    - cron: '30 5,8,11,14 * * *'
-
   workflow_dispatch:
 
 jobs:
   send:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
       - name: Install dependencies
-        run: python -m pip install --upgrade pip
-
+        run: python -m pip install --upgrade requests
       - name: Send private price message to Bale
         env:
           BALE_BOT_TOKEN: ${{ secrets.BALE_BOT_TOKEN }}
