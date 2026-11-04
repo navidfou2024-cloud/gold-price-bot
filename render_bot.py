@@ -164,19 +164,36 @@ def send_telegram(message):
 
 def send_bale(message):
     token = os.environ.get("BALE_BOT_TOKEN", "").strip()
-    chat_id = os.environ.get("BALE_CHAT_ID", "").strip()
-    if not token or not chat_id:
+    private_chat_id = os.environ.get("BALE_CHAT_ID", "").strip()
+    channel_1_chat_id = os.environ.get("BALE_CHANNEL_CHAT_ID", "").strip()
+    channel_2_chat_id = os.environ.get("BALE_CHANNEL_2_CHAT_ID", "").strip()
+    if not token or not private_chat_id:
         raise RuntimeError("Missing required Bale environment variables")
 
-    data = request_json(
-        f"https://tapi.bale.ai/bot{token}/sendMessage",
-        method="POST",
-        json_body={"chat_id": chat_id, "text": message},
-        timeout=25,
-    )
-    if not data.get("ok"):
-        raise RuntimeError("Bale API rejected the message")
-    log("Bale message sent successfully.")
+    destinations = [("private chat", private_chat_id)]
+    if channel_1_chat_id:
+        destinations.append(("Bale channel 1", channel_1_chat_id))
+    if channel_2_chat_id:
+        destinations.append(("Bale channel 2", channel_2_chat_id))
+
+    failures = []
+    for destination_name, chat_id in destinations:
+        try:
+            data = request_json(
+                f"https://tapi.bale.ai/bot{token}/sendMessage",
+                method="POST",
+                json_body={"chat_id": chat_id, "text": message},
+                timeout=25,
+            )
+            if not data.get("ok"):
+                raise RuntimeError("Bale API rejected the message")
+            log(f"Bale {destination_name}: message sent successfully.")
+        except Exception as exc:
+            failures.append(destination_name)
+            log(f"Bale {destination_name} delivery failed: {exc}")
+
+    if failures:
+        raise RuntimeError("Bale delivery failed for: " + ", ".join(failures))
 
 
 def main():
