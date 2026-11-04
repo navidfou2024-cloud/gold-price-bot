@@ -117,20 +117,41 @@ async def send_telegram(message):
 
 def send_bale(message):
     token = os.environ["BALE_BOT_TOKEN"].strip()
-    chat_id = os.environ["BALE_CHAT_ID"].strip()
-    response = requests.post(
-        f"{BALE_API_BASE}/bot{token}/sendMessage",
-        json={"chat_id": chat_id, "text": message},
-        timeout=20,
-    )
-    response.raise_for_status()
-    try:
-        result = response.json()
-    except ValueError as error:
-        raise RuntimeError("Bale returned a non-JSON response") from error
-    if not result.get("ok", False):
-        raise RuntimeError("Bale API did not confirm message delivery")
-    print("Bale: message sent successfully.")
+    private_chat_id = os.environ["BALE_CHAT_ID"].strip()
+    channel_1_chat_id = os.getenv("BALE_CHANNEL_CHAT_ID", "").strip()
+    channel_2_chat_id = os.getenv("BALE_CHANNEL_2_CHAT_ID", "").strip()
+
+    destinations = [("private chat", private_chat_id)]
+    if channel_1_chat_id:
+        destinations.append(("Bale channel 1", channel_1_chat_id))
+    if channel_2_chat_id:
+        destinations.append(("Bale channel 2", channel_2_chat_id))
+
+    errors = []
+    for destination_name, chat_id in destinations:
+        try:
+            response = requests.post(
+                f"{BALE_API_BASE}/bot{token}/sendMessage",
+                json={"chat_id": chat_id, "text": message},
+                timeout=20,
+            )
+            response.raise_for_status()
+            try:
+                result = response.json()
+            except ValueError as error:
+                raise RuntimeError("Bale returned a non-JSON response") from error
+            if not result.get("ok", False):
+                raise RuntimeError("Bale API did not confirm message delivery")
+            print(f"Bale {destination_name}: message sent successfully.")
+        except Exception as error:
+            print(
+                f"Bale {destination_name} send failed: "
+                f"{type(error).__name__}: {error}"
+            )
+            errors.append(destination_name)
+
+    if errors:
+        raise RuntimeError("Bale delivery failed for: " + ", ".join(errors))
 
 
 async def main():
