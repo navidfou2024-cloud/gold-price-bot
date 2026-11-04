@@ -81,14 +81,35 @@ def build_message():
 
 async def send_telegram(message):
     token = os.environ["BOT_TOKEN"].strip()
-    chat_id = os.environ["USER_CHAT_ID"].strip()
+    private_chat_id = os.environ["USER_CHAT_ID"].strip()
+    channel_chat_id = os.environ["TELEGRAM_CHANNEL_CHAT_ID"].strip()
+
+    # Deliver to the private chat and the configured Telegram channel.
+    destinations = (
+        ("private chat", private_chat_id),
+        ("Telegram channel", channel_chat_id),
+    )
+    errors = []
     async with Bot(token=token) as bot:
-        await bot.send_message(
-            chat_id=int(chat_id),
-            text=message,
-            disable_web_page_preview=True,
+        for destination_name, chat_id in destinations:
+            try:
+                await bot.send_message(
+                    chat_id=int(chat_id),
+                    text=message,
+                    disable_web_page_preview=True,
+                )
+                print(f"Telegram {destination_name}: message sent successfully.")
+            except Exception as error:
+                print(
+                    f"Telegram {destination_name} send failed: "
+                    f"{type(error).__name__}: {error}"
+                )
+                errors.append(destination_name)
+
+    if errors:
+        raise RuntimeError(
+            "Telegram delivery failed for: " + ", ".join(errors)
         )
-    print("Telegram: message sent successfully.")
 
 
 def send_bale(message):
