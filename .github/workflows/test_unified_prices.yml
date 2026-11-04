@@ -29,4 +29,6 @@ jobs:
           TELEGRAM_CHANNEL_2_CHAT_ID: ${{ secrets.TELEGRAM_CHANNEL_2_CHAT_ID }}
           BALE_BOT_TOKEN: ${{ secrets.BALE_BOT_TOKEN }}
           BALE_CHAT_ID: ${{ secrets.BALE_CHAT_ID }}
+          BALE_CHANNEL_CHAT_ID: ${{ secrets.BALE_CHANNEL_CHAT_ID }}
+          BALE_CHANNEL_2_CHAT_ID: ${{ secrets.BALE_CHANNEL_2_CHAT_ID }}
         run: python send_prices.py
