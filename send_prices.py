@@ -83,12 +83,15 @@ async def send_telegram(message):
     token = os.environ["BOT_TOKEN"].strip()
     private_chat_id = os.environ["USER_CHAT_ID"].strip()
     channel_chat_id = os.environ["TELEGRAM_CHANNEL_CHAT_ID"].strip()
+    second_channel_chat_id = os.getenv("TELEGRAM_CHANNEL_2_CHAT_ID", "").strip()
 
-    # Deliver to the private chat and the configured Telegram channel.
-    destinations = (
+    # Deliver independently to every configured Telegram destination.
+    destinations = [
         ("private chat", private_chat_id),
-        ("Telegram channel", channel_chat_id),
-    )
+        ("Telegram channel 1", channel_chat_id),
+    ]
+    if second_channel_chat_id:
+        destinations.append(("Telegram channel 2", second_channel_chat_id))
     errors = []
     async with Bot(token=token) as bot:
         for destination_name, chat_id in destinations:
