@@ -121,23 +121,42 @@ def build_message():
 
 def send_telegram(message):
     token = os.environ.get("BOT_TOKEN", "").strip()
-    chat_id = os.environ.get("USER_CHAT_ID", "").strip()
-    if not token or not chat_id:
+    private_chat_id = os.environ.get("USER_CHAT_ID", "").strip()
+    channel_chat_id = os.environ.get("TELEGRAM_CHANNEL_CHAT_ID", "").strip()
+    if not token or not private_chat_id:
         raise RuntimeError("Missing required Telegram environment variables")
+    if not channel_chat_id:
+        raise RuntimeError("Missing TELEGRAM_CHANNEL_CHAT_ID environment variable")
 
-    data = request_json(
-        f"https://api.telegram.org/bot{token}/sendMessage",
-        method="POST",
-        json_body={
-            "chat_id": chat_id,
-            "text": message,
-            "disable_web_page_preview": True,
-        },
-        timeout=25,
+    # Send to the private chat and the first configured channel independently.
+    destinations = (
+        ("private chat", private_chat_id),
+        ("Telegram channel", channel_chat_id),
     )
-    if not data.get("ok"):
-        raise RuntimeError("Telegram API rejected the message")
-    log("Telegram message sent successfully.")
+    failures = []
+    for destination_name, chat_id in destinations:
+        try:
+            data = request_json(
+                f"https://api.telegram.org/bot{token}/sendMessage",
+                method="POST",
+                json_body={
+                    "chat_id": chat_id,
+                    "text": message,
+                    "disable_web_page_preview": True,
+                },
+                timeout=25,
+            )
+            if not data.get("ok"):
+                raise RuntimeError("Telegram API rejected the message")
+            log(f"Telegram {destination_name}: message sent successfully.")
+        except Exception as exc:
+            failures.append(destination_name)
+            log(f"Telegram {destination_name} delivery failed: {exc}")
+
+    if failures:
+        raise RuntimeError(
+            "Telegram delivery failed for: " + ", ".join(failures)
+        )
 
 
 def send_bale(message):
