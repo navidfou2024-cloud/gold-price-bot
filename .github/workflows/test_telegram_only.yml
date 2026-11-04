@@ -26,4 +26,5 @@ jobs:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           USER_CHAT_ID: ${{ secrets.USER_CHAT_ID }}
           TELEGRAM_CHANNEL_CHAT_ID: ${{ secrets.TELEGRAM_CHANNEL_CHAT_ID }}
+          TELEGRAM_CHANNEL_2_CHAT_ID: ${{ secrets.TELEGRAM_CHANNEL_2_CHAT_ID }}
         run: python test_telegram_only.py
