@@ -123,16 +123,19 @@ def send_telegram(message):
     token = os.environ.get("BOT_TOKEN", "").strip()
     private_chat_id = os.environ.get("USER_CHAT_ID", "").strip()
     channel_chat_id = os.environ.get("TELEGRAM_CHANNEL_CHAT_ID", "").strip()
+    second_channel_chat_id = os.environ.get("TELEGRAM_CHANNEL_2_CHAT_ID", "").strip()
     if not token or not private_chat_id:
         raise RuntimeError("Missing required Telegram environment variables")
     if not channel_chat_id:
         raise RuntimeError("Missing TELEGRAM_CHANNEL_CHAT_ID environment variable")
 
-    # Send to the private chat and the first configured channel independently.
-    destinations = (
+    # Send independently to every configured Telegram destination.
+    destinations = [
         ("private chat", private_chat_id),
-        ("Telegram channel", channel_chat_id),
-    )
+        ("Telegram channel 1", channel_chat_id),
+    ]
+    if second_channel_chat_id:
+        destinations.append(("Telegram channel 2", second_channel_chat_id))
     failures = []
     for destination_name, chat_id in destinations:
         try:
